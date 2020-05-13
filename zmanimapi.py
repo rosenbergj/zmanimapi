@@ -6,8 +6,6 @@ from timezonefinder import TimezoneFinder
 from convertdate import hebrew
 import ephem
 
-HMONTHS = {True: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar1", "Adar2"), False: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar")}
-
 def jewish_holiday(date, chagdays=1):
     if (chagdays != 1 and chagdays != 2):
         raise ValueError("chagdays must be 1 or 2")
@@ -38,6 +36,10 @@ def jewish_holiday(date, chagdays=1):
             return "yomtov"
     return False
 
+def jewish_monthname(thedate):
+    months = {True: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar1", "Adar2"), False: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar")}
+    return months[hebrew.leap(thedate[0])][thedate[1]]
+
 tf = TimezoneFinder()
 lat = 39.95
 lon = -75.17
@@ -55,8 +57,8 @@ tomorrow = today + datetime.timedelta(days=1)
 
 hebtoday = hebrew.from_gregorian(today.year, today.month, today.day)
 hebtomorrow = hebrew.from_gregorian(tomorrow.year, tomorrow.month, tomorrow.day)
-hebmonthtoday = HMONTHS[hebrew.leap(hebtoday[0])][hebtoday[1]]
-hebmonthtomorrow = HMONTHS[hebrew.leap(hebtomorrow[0])][hebtomorrow[1]]
+hebmonthtoday = jewish_monthname(hebtoday)
+hebmonthtomorrow = jewish_monthname(hebtomorrow)
 
 print("{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0]))
 print("Holiday: {}".format(jewish_holiday(date=hebtoday, chagdays=chagdays)))
