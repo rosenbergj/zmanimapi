@@ -5,6 +5,7 @@ import pytz
 from timezonefinder import TimezoneFinder
 from convertdate import hebrew
 import ephem
+import json
 
 def jewish_holiday(date, chagdays=1):
     if (chagdays != 1 and chagdays != 2):
@@ -70,6 +71,8 @@ herenoon.date = ephem.Date(noon.astimezone(pytz.utc))
 sun = ephem.Sun()
 
 # Determine "set" and "dark" for today (may be in the past)
+todayrise_eph = herenoon.previous_rising(sun)
+todayrise = pytz.utc.localize(todayrise_eph.datetime()).astimezone(tz)
 tonightset_eph = herenoon.next_setting(sun)
 tonightset = pytz.utc.localize(tonightset_eph.datetime()).astimezone(tz)
 oldhorizon = herenoon.horizon
@@ -83,11 +86,43 @@ tonightdark = pytz.utc.localize(tonightdark_eph.datetime()).astimezone(tz)
 herenoon.horizon = oldhorizon
 herenoon.pressure = oldpressure
 
-print(tonightset)
-print(tonightdark)
-if tonightset > now:
-    print("up")
+# Status of sun
+if todayrise > now:
+    sunnow = "notyetup"
+elif tonightset > now:
+    sunnow = "up"
 elif tonightdark > now:
     sunnow = "twilight"
 else:
-    print("down")
+    sunnow = "down"
+
+# Is it Shabbat or a holiday?
+shabbat_or_holiday_today = (today.isoweekday() == 6)
+if (jewish_holiday(date=hebtoday, chagdays=chagdays)):
+    shabbat_or_holiday_today = True
+shabbat_or_holiday_tonight = (today.isoweekday() == 5)
+if (jewish_holiday(date=hebtomorrow, chagdays=chagdays)):
+    shabbat_or_holiday_tonight = True
+
+# Combine shabbat/holiday logic with sun up/down logic
+if (sunnow == "notyetup" or sunnow == "up"):
+    shabbat_or_holiday_now = shabbat_or_holiday_today
+elif (sunnow == "down"):
+    shabbat_or_holiday_now = shabbat_or_holiday_tonight
+elif (sunnow == "twilight"):
+    shabbat_or_holiday_now = (shabbat_or_holiday_today or shabbat_or_holiday_tonight)
+else:
+    raise ValueError("How is the sun not up or down or twilight?")
+
+to_print = {}
+to_print["results"] = {
+    "sunrise": todayrise.isoformat(),
+    "sunset": tonightset.isoformat(),
+    "jewish_twilight_end": tonightdark.isoformat(),
+    "sun_now": sunnow,
+    "shabbat_or_holiday_today": shabbat_or_holiday_today,
+    "shabbat_or_holiday_tonight": shabbat_or_holiday_tonight,
+    "shabbat_or_holiday_now": shabbat_or_holiday_now,
+}
+
+print(json.dumps(to_print))
