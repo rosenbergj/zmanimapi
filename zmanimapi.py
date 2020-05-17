@@ -116,22 +116,29 @@ shabbat_or_holiday_tonight = (today.isoweekday() == 5)
 if (jewish_holiday(date=hebtomorrow, chagdays=chagdays)):
     shabbat_or_holiday_tonight = True
 
-# Combine shabbat/holiday logic with sun up/down logic
+# Combine hebdate logic and shabbat/holiday logic with sun up/down logic
 if (sunnow == "notyetup" or sunnow == "up"):
     shabbat_or_holiday_now = shabbat_or_holiday_today
+    hebrew_date_now = "{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0])
 elif (sunnow == "down"):
     shabbat_or_holiday_now = shabbat_or_holiday_tonight
+    hebrew_date_now = "{} {}, {}".format(hebtomorrow[2], hebmonthtomorrow, hebtomorrow[0])
 elif (sunnow == "twilight"):
     shabbat_or_holiday_now = (shabbat_or_holiday_today or shabbat_or_holiday_tonight)
+    hebrew_date_now = "indeterminate"
 else:
     raise ValueError("How is the sun not up or down or twilight?")
 
+# time for output
 to_print = {}
 to_print["results"] = {
     "sunrise": todayrise.isoformat(),
     "sunset": tonightset.isoformat(),
     "jewish_twilight_end": tonightdark.isoformat(),
     "sun_now": sunnow,
+    "hebrew_date_today": "{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0]),
+    "hebrew_date_tonight": "{} {}, {}".format(hebtomorrow[2], hebmonthtomorrow, hebtomorrow[0]),
+    "hebrew_date_now": hebrew_date_now,
     "shabbat_or_yom_tov_today": shabbat_or_holiday_today,
     "shabbat_or_yom_tov_tonight": shabbat_or_holiday_tonight,
     "shabbat_or_yom_tov_now": shabbat_or_holiday_now,
