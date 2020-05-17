@@ -36,7 +36,7 @@ def jewish_holiday(date, chagdays=1):
             return "yomtov"
     return False
 
-def jewish_monthname(thedate):
+def hebrew_monthname(thedate):
     months = {True: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar1", "Adar2"), False: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar")}
     return months[hebrew.leap(thedate[0])][thedate[1]]
 
@@ -55,15 +55,16 @@ print(now)
 today = now.date()
 tomorrow = today + datetime.timedelta(days=1)
 
+# Get Hebrew calendar dates
 hebtoday = hebrew.from_gregorian(today.year, today.month, today.day)
 hebtomorrow = hebrew.from_gregorian(tomorrow.year, tomorrow.month, tomorrow.day)
-hebmonthtoday = jewish_monthname(hebtoday)
-hebmonthtomorrow = jewish_monthname(hebtomorrow)
+hebmonthtoday = hebrew_monthname(hebtoday)
+hebmonthtomorrow = hebrew_monthname(hebtomorrow)
 
 print("{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0]))
 print("Holiday: {}".format(jewish_holiday(date=hebtoday, chagdays=chagdays)))
 
-
+# Set up ephem info to determine sunset and nightfall
 herenow = ephem.Observer()
 herenow.lat, herenow.lon = lat*ephem.pi/180, lon*ephem.pi/180
 herenow.date = ephem.Date(now.astimezone(pytz.utc))
@@ -72,6 +73,7 @@ herenoon.lat, herenoon.lon = lat*ephem.pi/180, lon*ephem.pi/180
 herenoon.date = ephem.Date(noon.astimezone(pytz.utc))
 sun = ephem.Sun()
 
+# Determine "set" and "dark" for today (may be in the past)
 tonightset_eph = herenoon.next_setting(sun)
 tonightset = pytz.utc.localize(tonightset_eph.datetime()).astimezone(tz)
 oldhorizon = herenoon.horizon
