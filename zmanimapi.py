@@ -10,30 +10,30 @@ def jewish_holiday(date, chagdays=1):
     if (chagdays != 1 and chagdays != 2):
         raise ValueError("chagdays must be 1 or 2")
     if (date[1] == 7 and date[2] < 3):
-        return "yomtov"
+        return True
     if (date[1] == 7 and date[2] == 10):
-        return "yomtov"
+        return True
     if (date[1] == 7 and date[2] == 15):
-        return "yomtov"
+        return True
     if (date[1] == 7 and date[2] == 22):
-        return "yomtov"
+        return True
     if (date[1] == 1 and date[2] == 15):
-        return "yomtov"
+        return True
     if (date[1] == 1 and date[2] == 21):
-        return "yomtov"
+        return True
     if (date[1] == 3 and date[2] == 6):
-        return "yomtov"
+        return True
     if chagdays == 2:
         if (date[1] == 7 and date[2] == 16):
-            return "yomtov"
+            return True
         if (date[1] == 7 and date[2] == 23):
-            return "yomtov"
+            return True
         if (date[1] == 1 and date[2] == 16):
-            return "yomtov"
+            return True
         if (date[1] == 1 and date[2] == 22):
-            return "yomtov"
+            return True
         if (date[1] == 3 and date[2] == 7):
-            return "yomtov"
+            return True
     return False
 
 def hebrew_monthname(thedate):
@@ -46,12 +46,10 @@ lon = -75.17
 #lat,lon = 39.9,116.4
 chagdays=1
 tzname = tf.timezone_at(lng=lon, lat=lat) 
-print(tzname)
 tz = pytz.timezone(tzname)
 
 now = datetime.datetime.now(tz=tz)
 noon = tz.localize(datetime.datetime(year=now.year, month=now.month, day=now.day, hour=12, minute=30))
-print(now)
 today = now.date()
 tomorrow = today + datetime.timedelta(days=1)
 
@@ -61,8 +59,6 @@ hebtomorrow = hebrew.from_gregorian(tomorrow.year, tomorrow.month, tomorrow.day)
 hebmonthtoday = hebrew_monthname(hebtoday)
 hebmonthtomorrow = hebrew_monthname(hebtomorrow)
 
-print("{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0]))
-print("Holiday: {}".format(jewish_holiday(date=hebtoday, chagdays=chagdays)))
 
 # Set up ephem info to determine sunset and nightfall
 herenow = ephem.Observer()
@@ -92,6 +88,6 @@ print(tonightdark)
 if tonightset > now:
     print("up")
 elif tonightdark > now:
-    print("twilight")
+    sunnow = "twilight"
 else:
     print("down")
