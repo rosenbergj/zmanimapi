@@ -11,29 +11,41 @@ def jewish_holiday(date, chagdays=1):
     if (chagdays != 1 and chagdays != 2):
         raise ValueError("chagdays must be 1 or 2")
     if (date[1] == 7 and date[2] < 3):
+        # Rosh Hashanah
         return True
     if (date[1] == 7 and date[2] == 10):
+        # Yom Kippur
         return True
     if (date[1] == 7 and date[2] == 15):
+        # Sukkot, day 1
         return True
     if (date[1] == 7 and date[2] == 22):
+        # Shemini Atzeret
         return True
     if (date[1] == 1 and date[2] == 15):
+        # Pesach, day 1
         return True
     if (date[1] == 1 and date[2] == 21):
+        # Pesach, day 7
         return True
     if (date[1] == 3 and date[2] == 6):
+        # Shavuot
         return True
     if chagdays == 2:
         if (date[1] == 7 and date[2] == 16):
+            # Sukkot, day 2
             return True
         if (date[1] == 7 and date[2] == 23):
+            # Simchat Torah
             return True
         if (date[1] == 1 and date[2] == 16):
+            # Pesach, day 2
             return True
         if (date[1] == 1 and date[2] == 22):
+            # Pesach, day 8
             return True
         if (date[1] == 3 and date[2] == 7):
+            # Shavuot, day 2
             return True
     return False
 
@@ -120,9 +132,9 @@ to_print["results"] = {
     "sunset": tonightset.isoformat(),
     "jewish_twilight_end": tonightdark.isoformat(),
     "sun_now": sunnow,
-    "shabbat_or_holiday_today": shabbat_or_holiday_today,
-    "shabbat_or_holiday_tonight": shabbat_or_holiday_tonight,
-    "shabbat_or_holiday_now": shabbat_or_holiday_now,
+    "shabbat_or_yom_tov_today": shabbat_or_holiday_today,
+    "shabbat_or_yom_tov_tonight": shabbat_or_holiday_tonight,
+    "shabbat_or_yom_tov_now": shabbat_or_holiday_now,
 }
 
 print(json.dumps(to_print))
