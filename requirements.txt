@@ -1,0 +1,9 @@
+convertdate==2.2.1
+DateTime==4.3
+ephem>3.7
+llvmlite==0.32.1
+numpy==1.18.4
+PyMeeus==0.3.7
+pytz==2020.1
+timezonefinder==4.4.0
+zope.interface==5.1.0
