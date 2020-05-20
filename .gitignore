@@ -1,0 +1,12 @@
+# Distribution / packaging
+.Python
+build/
+dist/
+downloads/
+env/
+lib/
+lib64/
+parts/
+sdist/
+var/
+.installed.cfg
