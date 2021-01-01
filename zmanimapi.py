@@ -53,12 +53,8 @@ def hebrew_monthname(thedate):
     months = {True: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar1", "Adar2"), False: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar")}
     return months[hebrew.leap(thedate[0])][thedate[1]]
 
-def do_the_things():
+def do_the_things(lat, lon, chagdays=2):
     tf = TimezoneFinder()
-    lat = 39.95
-    lon = -75.17
-    #lat,lon = 39.9,116.4
-    chagdays=1
     tzname = tf.timezone_at(lng=lon, lat=lat)
     tz = pytz.timezone(tzname)
 
@@ -148,7 +144,7 @@ def do_the_things():
     return json.dumps(to_print)
 
 def lambda_handler(event, context):
-    output = do_the_things()
+    output = do_the_things(lat=float(event['lat']), lon=float(event['lon']), chagdays=int(event['chagdays']))
     return {
         'statusCode': 200,
         'body': output
