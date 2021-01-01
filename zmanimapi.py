@@ -1,4 +1,4 @@
-#!/usr/bin/python3 -u
+#!/usr/bin/env python3 -u
 
 import datetime
 import pytz
@@ -58,7 +58,7 @@ lat = 39.95
 lon = -75.17
 #lat,lon = 39.9,116.4
 chagdays=1
-tzname = tf.timezone_at(lng=lon, lat=lat) 
+tzname = tf.timezone_at(lng=lon, lat=lat)
 tz = pytz.timezone(tzname)
 
 now = datetime.datetime.now(tz=tz)
