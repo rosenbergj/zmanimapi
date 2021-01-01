@@ -10,10 +10,12 @@ jobs:
     steps:
     - uses: actions/checkout@main
     - name: Deploy code to Lambda
-      uses: mariamrf/py-lambda-action@1.0.1
+      uses: rosenbergj/py-lambda-action@s3-option
       with:
         lambda_layer_arn: ${{ secrets.LAMBDA_DEPENDENCY_LAYER_ARN }}
         lambda_function_name: 'ZmanimAPI'
+        use_s3: 'true'
+        s3_bucket_name: ${{ secrets.S3_BUCKET_NAME }}
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
