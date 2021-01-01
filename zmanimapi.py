@@ -53,95 +53,106 @@ def hebrew_monthname(thedate):
     months = {True: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar1", "Adar2"), False: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar")}
     return months[hebrew.leap(thedate[0])][thedate[1]]
 
-tf = TimezoneFinder()
-lat = 39.95
-lon = -75.17
-#lat,lon = 39.9,116.4
-chagdays=1
-tzname = tf.timezone_at(lng=lon, lat=lat)
-tz = pytz.timezone(tzname)
+def do_the_things():
+    tf = TimezoneFinder()
+    lat = 39.95
+    lon = -75.17
+    #lat,lon = 39.9,116.4
+    chagdays=1
+    tzname = tf.timezone_at(lng=lon, lat=lat)
+    tz = pytz.timezone(tzname)
 
-now = datetime.datetime.now(tz=tz)
-noon = tz.localize(datetime.datetime(year=now.year, month=now.month, day=now.day, hour=12, minute=30))
-today = now.date()
-tomorrow = today + datetime.timedelta(days=1)
+    now = datetime.datetime.now(tz=tz)
+    noon = tz.localize(datetime.datetime(year=now.year, month=now.month, day=now.day, hour=12, minute=30))
+    today = now.date()
+    tomorrow = today + datetime.timedelta(days=1)
 
-# Get Hebrew calendar dates
-hebtoday = hebrew.from_gregorian(today.year, today.month, today.day)
-hebtomorrow = hebrew.from_gregorian(tomorrow.year, tomorrow.month, tomorrow.day)
-hebmonthtoday = hebrew_monthname(hebtoday)
-hebmonthtomorrow = hebrew_monthname(hebtomorrow)
+    # Get Hebrew calendar dates
+    hebtoday = hebrew.from_gregorian(today.year, today.month, today.day)
+    hebtomorrow = hebrew.from_gregorian(tomorrow.year, tomorrow.month, tomorrow.day)
+    hebmonthtoday = hebrew_monthname(hebtoday)
+    hebmonthtomorrow = hebrew_monthname(hebtomorrow)
 
 
-# Set up ephem info to determine sunset and nightfall
-herenow = ephem.Observer()
-herenow.lat, herenow.lon = lat*ephem.pi/180, lon*ephem.pi/180
-herenow.date = ephem.Date(now.astimezone(pytz.utc))
-herenoon = ephem.Observer()
-herenoon.lat, herenoon.lon = lat*ephem.pi/180, lon*ephem.pi/180
-herenoon.date = ephem.Date(noon.astimezone(pytz.utc))
-sun = ephem.Sun()
+    # Set up ephem info to determine sunset and nightfall
+    herenow = ephem.Observer()
+    herenow.lat, herenow.lon = lat*ephem.pi/180, lon*ephem.pi/180
+    herenow.date = ephem.Date(now.astimezone(pytz.utc))
+    herenoon = ephem.Observer()
+    herenoon.lat, herenoon.lon = lat*ephem.pi/180, lon*ephem.pi/180
+    herenoon.date = ephem.Date(noon.astimezone(pytz.utc))
+    sun = ephem.Sun()
 
-# Determine "set" and "dark" for today (may be in the past)
-todayrise_eph = herenoon.previous_rising(sun)
-todayrise = pytz.utc.localize(todayrise_eph.datetime()).astimezone(tz)
-tonightset_eph = herenoon.next_setting(sun)
-tonightset = pytz.utc.localize(tonightset_eph.datetime()).astimezone(tz)
-oldhorizon = herenoon.horizon
-oldpressure = herenoon.pressure
-herenoon.pressure = 0
-# All horizon math is from top of sun disk
-# We need to take into account sun's radius, averaging .266 degrees
-herenoon.horizon = "-8.233" # middle of sun 8.5 deg
-tonightdark_eph = herenoon.next_setting(sun)
-tonightdark = pytz.utc.localize(tonightdark_eph.datetime()).astimezone(tz)
-herenoon.horizon = oldhorizon
-herenoon.pressure = oldpressure
+    # Determine "set" and "dark" for today (may be in the past)
+    todayrise_eph = herenoon.previous_rising(sun)
+    todayrise = pytz.utc.localize(todayrise_eph.datetime()).astimezone(tz)
+    tonightset_eph = herenoon.next_setting(sun)
+    tonightset = pytz.utc.localize(tonightset_eph.datetime()).astimezone(tz)
+    oldhorizon = herenoon.horizon
+    oldpressure = herenoon.pressure
+    herenoon.pressure = 0
+    # All horizon math is from top of sun disk
+    # We need to take into account sun's radius, averaging .266 degrees
+    herenoon.horizon = "-8.233" # middle of sun 8.5 deg
+    tonightdark_eph = herenoon.next_setting(sun)
+    tonightdark = pytz.utc.localize(tonightdark_eph.datetime()).astimezone(tz)
+    herenoon.horizon = oldhorizon
+    herenoon.pressure = oldpressure
 
-# Status of sun
-if todayrise > now:
-    sunnow = "notyetup"
-elif tonightset > now:
-    sunnow = "up"
-elif tonightdark > now:
-    sunnow = "twilight"
-else:
-    sunnow = "down"
+    # Status of sun
+    if todayrise > now:
+        sunnow = "notyetup"
+    elif tonightset > now:
+        sunnow = "up"
+    elif tonightdark > now:
+        sunnow = "twilight"
+    else:
+        sunnow = "down"
 
-# Is it Shabbat or a holiday?
-shabbat_or_holiday_today = (today.isoweekday() == 6)
-if (jewish_holiday(date=hebtoday, chagdays=chagdays)):
-    shabbat_or_holiday_today = True
-shabbat_or_holiday_tonight = (today.isoweekday() == 5)
-if (jewish_holiday(date=hebtomorrow, chagdays=chagdays)):
-    shabbat_or_holiday_tonight = True
+    # Is it Shabbat or a holiday?
+    shabbat_or_holiday_today = (today.isoweekday() == 6)
+    if (jewish_holiday(date=hebtoday, chagdays=chagdays)):
+        shabbat_or_holiday_today = True
+    shabbat_or_holiday_tonight = (today.isoweekday() == 5)
+    if (jewish_holiday(date=hebtomorrow, chagdays=chagdays)):
+        shabbat_or_holiday_tonight = True
 
-# Combine hebdate logic and shabbat/holiday logic with sun up/down logic
-if (sunnow == "notyetup" or sunnow == "up"):
-    shabbat_or_holiday_now = shabbat_or_holiday_today
-    hebrew_date_now = "{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0])
-elif (sunnow == "down"):
-    shabbat_or_holiday_now = shabbat_or_holiday_tonight
-    hebrew_date_now = "{} {}, {}".format(hebtomorrow[2], hebmonthtomorrow, hebtomorrow[0])
-elif (sunnow == "twilight"):
-    shabbat_or_holiday_now = (shabbat_or_holiday_today or shabbat_or_holiday_tonight)
-    hebrew_date_now = "indeterminate"
-else:
-    raise ValueError("How is the sun not up or down or twilight?")
+    # Combine hebdate logic and shabbat/holiday logic with sun up/down logic
+    if (sunnow == "notyetup" or sunnow == "up"):
+        shabbat_or_holiday_now = shabbat_or_holiday_today
+        hebrew_date_now = "{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0])
+    elif (sunnow == "down"):
+        shabbat_or_holiday_now = shabbat_or_holiday_tonight
+        hebrew_date_now = "{} {}, {}".format(hebtomorrow[2], hebmonthtomorrow, hebtomorrow[0])
+    elif (sunnow == "twilight"):
+        shabbat_or_holiday_now = (shabbat_or_holiday_today or shabbat_or_holiday_tonight)
+        hebrew_date_now = "indeterminate"
+    else:
+        raise ValueError("How is the sun not up or down or twilight?")
 
-# time for output
-to_print = {}
-to_print["results"] = {
-    "sunrise": todayrise.isoformat(),
-    "sunset": tonightset.isoformat(),
-    "jewish_twilight_end": tonightdark.isoformat(),
-    "sun_now": sunnow,
-    "hebrew_date_today": "{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0]),
-    "hebrew_date_tonight": "{} {}, {}".format(hebtomorrow[2], hebmonthtomorrow, hebtomorrow[0]),
-    "hebrew_date_now": hebrew_date_now,
-    "shabbat_or_yom_tov_today": shabbat_or_holiday_today,
-    "shabbat_or_yom_tov_tonight": shabbat_or_holiday_tonight,
-    "shabbat_or_yom_tov_now": shabbat_or_holiday_now,
-}
+    # time for output
+    to_print = {}
+    to_print["results"] = {
+        "sunrise": todayrise.isoformat(),
+        "sunset": tonightset.isoformat(),
+        "jewish_twilight_end": tonightdark.isoformat(),
+        "sun_now": sunnow,
+        "hebrew_date_today": "{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0]),
+        "hebrew_date_tonight": "{} {}, {}".format(hebtomorrow[2], hebmonthtomorrow, hebtomorrow[0]),
+        "hebrew_date_now": hebrew_date_now,
+        "shabbat_or_yom_tov_today": shabbat_or_holiday_today,
+        "shabbat_or_yom_tov_tonight": shabbat_or_holiday_tonight,
+        "shabbat_or_yom_tov_now": shabbat_or_holiday_now,
+    }
 
-print(json.dumps(to_print))
+    return json.dumps(to_print)
+
+def lambda_handler(event, context):
+    output = do_the_things()
+    return {
+        'statusCode': 200,
+        'body': output
+    }
+
+if __name__ == "__main__":
+   print(do_the_things())
