@@ -1,0 +1,20 @@
+name: deploy-py-lambda
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@main
+    - name: Deploy code to Lambda
+      uses: mariamrf/py-lambda-action@1.0.1
+      with:
+        lambda_layer_arn: ${{ secrets.LAMBDA_DEPENDENCY_LAYER_ARN }}
+        lambda_function_name: 'ZmanimAPI'
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: 'us-east-1'
