@@ -56,7 +56,10 @@ def hebrew_monthname(thedate):
 def do_the_things(lat, lon, chagdays=2):
     tf = TimezoneFinder()
     tzname = tf.timezone_at(lng=lon, lat=lat)
-    tz = pytz.timezone(tzname)
+    try:
+        tz = pytz.timezone(tzname)
+    except pytz.exceptions.UnknownTimeZoneError:
+        tz = pytz.timezone('UTC')
 
     now = datetime.datetime.now(tz=tz)
     noon = tz.localize(datetime.datetime(year=now.year, month=now.month, day=now.day, hour=12, minute=30))
