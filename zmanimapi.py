@@ -93,8 +93,12 @@ def do_the_things(lat, lon, chagdays=2):
     # All horizon math is from top of sun disk
     # We need to take into account sun's radius, averaging .266 degrees
     herenoon.horizon = "-8.233" # middle of sun 8.5 deg
-    tonightdark_eph = herenoon.next_setting(sun)
-    tonightdark = pytz.utc.localize(tonightdark_eph.datetime()).astimezone(tz)
+    try:
+        tonightdark_eph = herenoon.next_setting(sun)
+        tonightdark = pytz.utc.localize(tonightdark_eph.datetime()).astimezone(tz)
+        tonightdark_txt = tonightdark.isoformat()
+    except ephem.AlwaysUpError:
+        tonightdark_txt = 'none'
     herenoon.horizon = oldhorizon
     herenoon.pressure = oldpressure
 
@@ -103,7 +107,7 @@ def do_the_things(lat, lon, chagdays=2):
         sunnow = "notyetup"
     elif tonightset > now:
         sunnow = "up"
-    elif tonightdark > now:
+    elif (tonightdark_txt == 'none' or tonightdark > now):
         sunnow = "twilight"
     else:
         sunnow = "down"
@@ -130,11 +134,11 @@ def do_the_things(lat, lon, chagdays=2):
         raise ValueError("How is the sun not up or down or twilight?")
 
     # time for output
-    to_print = {}
-    to_print["results"] = {
+    to_return = {}
+    to_return["results"] = {
         "sunrise": todayrise.isoformat(),
         "sunset": tonightset.isoformat(),
-        "jewish_twilight_end": tonightdark.isoformat(),
+        "jewish_twilight_end": tonightdark_txt,
         "sun_now": sunnow,
         "hebrew_date_today": "{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0]),
         "hebrew_date_tonight": "{} {}, {}".format(hebtomorrow[2], hebmonthtomorrow, hebtomorrow[0]),
@@ -144,7 +148,7 @@ def do_the_things(lat, lon, chagdays=2):
         "shabbat_or_yom_tov_now": shabbat_or_holiday_now,
     }
 
-    return json.dumps(to_print)
+    return json.dumps(to_return)
 
 def lambda_handler(event, context):
     output = do_the_things(lat=float(event['lat']), lon=float(event['lon']), chagdays=int(event['chagdays']))
