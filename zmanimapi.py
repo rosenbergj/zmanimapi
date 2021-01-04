@@ -96,7 +96,7 @@ def do_the_things(lat, lon, chagdays=2):
     try:
         tonightdark_eph = herenoon.next_setting(sun)
         tonightdark = pytz.utc.localize(tonightdark_eph.datetime()).astimezone(tz)
-        tonightdark_txt = tonightdark.isoformat()
+        tonightdark_txt = tonightdark.isoformat(timespec='seconds')
     except ephem.AlwaysUpError:
         tonightdark_txt = 'none'
     herenoon.horizon = oldhorizon
@@ -136,8 +136,8 @@ def do_the_things(lat, lon, chagdays=2):
     # time for output
     to_return = {}
     to_return["results"] = {
-        "sunrise": todayrise.isoformat(),
-        "sunset": tonightset.isoformat(),
+        "sunrise": todayrise.isoformat(timespec='seconds'),
+        "sunset": tonightset.isoformat(timespec='seconds'),
         "jewish_twilight_end": tonightdark_txt,
         "sun_now": sunnow,
         "hebrew_date_today": "{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0]),
