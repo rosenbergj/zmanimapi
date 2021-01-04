@@ -83,10 +83,19 @@ def do_the_things(lat, lon, chagdays=2):
     sun = ephem.Sun()
 
     # Determine "set" and "dark" for today (may be in the past)
-    todayrise_eph = herenoon.previous_rising(sun)
-    todayrise = pytz.utc.localize(todayrise_eph.datetime()).astimezone(tz)
-    tonightset_eph = herenoon.next_setting(sun)
-    tonightset = pytz.utc.localize(tonightset_eph.datetime()).astimezone(tz)
+    try:
+        todayrise_eph = herenoon.previous_rising(sun)
+        todayrise = pytz.utc.localize(todayrise_eph.datetime()).astimezone(tz)
+        todayrise_txt = todayrise.isoformat(timespec='seconds')
+        tonightset_eph = herenoon.next_setting(sun)
+        tonightset = pytz.utc.localize(tonightset_eph.datetime()).astimezone(tz)
+        tonightset_txt = tonightset.isoformat(timespec='seconds')
+    except ephem.NeverUpError:
+        todayrise_txt = 'downallday'
+        tonightset_txt = 'downallday'
+    except ephem.AlwaysUpError:
+        todayrise_txt = 'upallday'
+        tonightset_txt = 'upallday'
     oldhorizon = herenoon.horizon
     oldpressure = herenoon.pressure
     herenoon.pressure = 0
@@ -97,13 +106,22 @@ def do_the_things(lat, lon, chagdays=2):
         tonightdark_eph = herenoon.next_setting(sun)
         tonightdark = pytz.utc.localize(tonightdark_eph.datetime()).astimezone(tz)
         tonightdark_txt = tonightdark.isoformat(timespec='seconds')
+    except ephem.NeverUpError:
+        tonightdark_txt = 'alwaysdark'
     except ephem.AlwaysUpError:
         tonightdark_txt = 'none'
     herenoon.horizon = oldhorizon
     herenoon.pressure = oldpressure
 
-    # Status of sun
-    if todayrise > now:
+    # Status of sun, handle no-rise/no-set cases first
+    if todayrise_txt == "upallday":
+        sunnow = "up"
+    elif (todayrise_txt == 'downallday' and (tonightdark == 'alwaysdark' or tonightdark < now)):
+        sunnow = "down"
+    elif todayrise_txt == 'downallday':
+        sunnow = "twilight"
+    # normal cases
+    elif todayrise > now:
         sunnow = "notyetup"
     elif tonightset > now:
         sunnow = "up"
@@ -136,8 +154,8 @@ def do_the_things(lat, lon, chagdays=2):
     # time for output
     to_return = {}
     to_return["results"] = {
-        "sunrise": todayrise.isoformat(timespec='seconds'),
-        "sunset": tonightset.isoformat(timespec='seconds'),
+        "sunrise": todayrise_txt,
+        "sunset": tonightset_txt,
         "jewish_twilight_end": tonightdark_txt,
         "sun_now": sunnow,
         "hebrew_date_today": "{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0]),
