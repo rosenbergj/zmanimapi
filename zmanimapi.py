@@ -151,6 +151,7 @@ def do_the_things(lat, lon, chagdays=2):
     return json.dumps(to_return)
 
 def lambda_handler(event, context):
+    # Syntax: https://github.com/donnieprakoso/boilerplate-aws-lambda-proxy-python3/blob/master/main.py
     query = event['queryStringParameters']
     output = do_the_things(lat=float(query['lat']), lon=float(query['lon']), chagdays=int(query['chagdays']))
     return {
