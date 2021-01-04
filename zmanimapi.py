@@ -151,7 +151,8 @@ def do_the_things(lat, lon, chagdays=2):
     return json.dumps(to_return)
 
 def lambda_handler(event, context):
-    output = do_the_things(lat=float(event['lat']), lon=float(event['lon']), chagdays=int(event['chagdays']))
+    query = event['queryStringParameters']
+    output = do_the_things(lat=float(query['lat']), lon=float(query['lon']), chagdays=int(query['chagdays']))
     return {
         'statusCode': 200,
         'body': output
