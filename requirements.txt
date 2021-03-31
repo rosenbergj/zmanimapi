@@ -3,7 +3,7 @@ DateTime>=4.3
 ephem>=3.7
 llvmlite==0.35.0
 numpy==1.19.4
-PyMeeus==0.3.7
+PyMeeus>=0.3.7
 pytz>=2020.5
 timezonefinder==5.0.0
 zope.interface==5.2.0
