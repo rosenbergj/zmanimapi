@@ -6,6 +6,7 @@ from timezonefinder import TimezoneFinder
 from convertdate import hebrew
 import ephem
 import json
+import argparse
 
 def jewish_holiday(date, chagdays=1):
     if (chagdays != 1 and chagdays != 2):
@@ -53,7 +54,7 @@ def hebrew_monthname(thedate):
     months = {True: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar1", "Adar2"), False: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar")}
     return months[hebrew.leap(thedate[0])][thedate[1]]
 
-def do_the_things(lat, lon, chagdays=2):
+def do_the_things(lat, lon, chagdays=2, offset=0):
     tf = TimezoneFinder()
     tzname = tf.timezone_at(lng=lon, lat=lat)
     try:
@@ -62,6 +63,8 @@ def do_the_things(lat, lon, chagdays=2):
         tz = pytz.timezone('UTC')
 
     now = datetime.datetime.now(tz=tz)
+    if offset is not None:
+        now += datetime.timedelta(seconds=offset)
     noon = tz.localize(datetime.datetime(year=now.year, month=now.month, day=now.day, hour=12, minute=30))
     today = now.date()
     tomorrow = today + datetime.timedelta(days=1)
@@ -171,11 +174,18 @@ def do_the_things(lat, lon, chagdays=2):
 def lambda_handler(event, context):
     # Syntax: https://github.com/donnieprakoso/boilerplate-aws-lambda-proxy-python3/blob/master/main.py
     query = event['queryStringParameters']
-    output = do_the_things(lat=float(query['lat']), lon=float(query['lon']), chagdays=int(query['chagdays']))
+    output = do_the_things(lat=float(query['lat']), lon=float(query['lon']), chagdays=int(query['chagdays']), offset=int(query['offset']))
     return {
         'statusCode': 200,
         'body': output
     }
 
 if __name__ == "__main__":
-   print(do_the_things())
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--lat", help="latitude", type=float)
+    parser.add_argument("-n", "--lon", help="longitude", type=float)
+    parser.add_argument("-c", "--chagdays", help="how many days of chag", type=int, choices=[1, 2], default=2)
+    parser.add_argument("-o", "--offset", help="calculate this many seconds from now", type=int)
+    args = parser.parse_args()
+
+    print(do_the_things(lat=args.lat, lon=args.lon, chagdays=args.chagdays, offset=args.offset))
