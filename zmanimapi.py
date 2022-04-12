@@ -174,7 +174,13 @@ def do_the_things(lat, lon, chagdays=2, offset=0):
 def lambda_handler(event, context):
     # Syntax: https://github.com/donnieprakoso/boilerplate-aws-lambda-proxy-python3/blob/master/main.py
     query = event['queryStringParameters']
-    output = do_the_things(lat=float(query['lat']), lon=float(query['lon']), chagdays=int(query['chagdays']), offset=int(query['offset']))
+    chagdays = None
+    if "chagdays" in query:
+        chagdays = int(query['chagdays'])
+    offset = None
+    if "offset" in query:
+        offset = int(query['offset'])
+    output = do_the_things(lat=float(query['lat']), lon=float(query['lon']), chagdays=chagdays, offset=offset)
     return {
         'statusCode': 200,
         'body': output
