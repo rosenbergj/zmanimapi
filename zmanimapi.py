@@ -64,7 +64,7 @@ def do_the_things(lat, lon, chagdays=2, offset=0):
 
     now = datetime.datetime.now(tz=tz)
     if offset is not None:
-        now += datetime.timedelta(seconds=offset)
+        now += datetime.timedelta(minutes=offset)
     noon = tz.localize(datetime.datetime(year=now.year, month=now.month, day=now.day, hour=12, minute=30))
     today = now.date()
     tomorrow = today + datetime.timedelta(days=1)
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--lat", help="latitude", type=float)
     parser.add_argument("-n", "--lon", help="longitude", type=float)
     parser.add_argument("-c", "--chagdays", help="how many days of chag", type=int, choices=[1, 2], default=2)
-    parser.add_argument("-o", "--offset", help="calculate this many seconds from now", type=int)
+    parser.add_argument("-o", "--offset", help="calculate this many minutes from now", type=int)
     args = parser.parse_args()
 
     print(do_the_things(lat=args.lat, lon=args.lon, chagdays=args.chagdays, offset=args.offset))
