@@ -2,7 +2,7 @@
 
 ## Polar Notes
 
-Close enough to the poles, during summer in that hemisphere, the value of `jewish_twilight_end` may be "none". In this case, the Jewish date might be "indeterminate" from sunset until the end of the day, local time. If the script also couldn't determine your local time zone, it uses UTC. The combination of these two things might produce really weird results.
+Close enough to the poles, during summer in that hemisphere, the value of `jewish_twilight_end` may be "none". In this case, the Hebrew date might be "indeterminate" from sunset until the end of the day, local time. If the script also couldn't determine your local time zone, it uses UTC. The combination of these two things might produce really weird results.
 
 Here are some other details about values returned in areas that are particularly far north or south:
 
