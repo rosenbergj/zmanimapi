@@ -64,7 +64,7 @@ def do_the_things(lat, lon, chagdays=2, offset=0):
 
     now = datetime.datetime.now(tz=tz)
     if offset is not None:
-        now += datetime.timedelta(seconds=offset)
+        now += datetime.timedelta(minutes=offset)
     noon = tz.localize(datetime.datetime(year=now.year, month=now.month, day=now.day, hour=12, minute=30))
     today = now.date()
     tomorrow = today + datetime.timedelta(days=1)
