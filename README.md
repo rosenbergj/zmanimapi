@@ -16,6 +16,10 @@ Here are some other details about values returned in areas that are particularly
 Note: A day's sunset is defined as the next sunset after noon that day, assuming there is one in the next 24 hours or so. Similarly, a day's sunrise is defined as the last sunrise before noon that day, if it was in the previous 24 hours or so. That means, for example, that on July 27, 2021, in Tromsø, Norway, when the sun sets at 12:09am, rises at 1:32am, and sets again at 11:56pm, we do not count the 12:09am setting as that day's sunset. Therefore, we will incorrectly report that the sun is "notyetup" between midnight and 1:32am that day.
 
 
+## Other weird time notes
+
+The API might have slightly incorrect ideas of what constitutes "today" when you're close to the start or end of Daylight Saving Time A.K.A. Summer Time. For example, when it's after 11:00pm on the night before the start of DST in the spring, the API will already be telling you about the next day's sunrise and sunset, even though normally it won't do that until after midnight.
+
 ## Execution Notes
 
 Tested in python 3.9.
