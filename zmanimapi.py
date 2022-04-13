@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 -u
+#!/usr/bin/env -S python3 -u
 
 import datetime
 import pytz
@@ -157,6 +157,7 @@ def do_the_things(lat, lon, chagdays=2, offset=0):
     # time for output
     to_return = {}
     to_return["results"] = {
+        "now": now.astimezone(tz).isoformat(timespec='seconds'),
         "sunrise": todayrise_txt,
         "sunset": tonightset_txt,
         "jewish_twilight_end": tonightdark_txt,
