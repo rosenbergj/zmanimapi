@@ -40,16 +40,16 @@ Response:
 ```json
 {
   "results": {
-    "now": "2022-04-18T15:21:18-04:00",
-    "sunrise": "2022-04-18T06:27:05-04:00",
-    "sunset": "2022-04-18T19:48:28-04:00",
-    "jewish_twilight_end": "2022-04-18T20:29:45-04:00",
+    "now": "2022-04-21T11:10:37-04:00",
+    "sunrise": "2022-04-21T06:22:54-04:00",
+    "sunset": "2022-04-21T19:51:22-04:00",
+    "jewish_twilight_end": "2022-04-21T20:33:00-04:00",
     "sun_now": "up",
-    "hebrew_date_today": "17 Nisan, 5782",
-    "hebrew_date_tonight": "18 Nisan, 5782",
-    "hebrew_date_now": "17 Nisan, 5782",
+    "hebrew_date_today": "20 Nisan, 5782",
+    "hebrew_date_tonight": "21 Nisan, 5782",
+    "hebrew_date_now": "20 Nisan, 5782",
     "shabbat_or_yom_tov_today": false,
-    "shabbat_or_yom_tov_tonight": false,
+    "shabbat_or_yom_tov_tonight": true,
     "shabbat_or_yom_tov_now": false
   }
 }
