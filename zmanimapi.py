@@ -54,6 +54,15 @@ def hebrew_monthname(thedate):
     months = {True: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar1", "Adar2"), False: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar")}
     return months[hebrew.leap(thedate[0])][thedate[1]]
 
+def omer_day(thedate):
+    if hebrew_monthname(thedate) == "Nisan":
+        return max(thedate[2]-15, 0)
+    elif hebrew_monthname(thedate) == "Iyar":
+        return thedate[2]+15
+    elif hebrew_monthname(thedate) == "Sivan" and thedate[2] < 6:
+        return thedate[2] + 44
+    return 0
+
 def do_the_things(lat, lon, chagdays=2, offset=0):
     tf = TimezoneFinder()
     tzname = tf.timezone_at(lng=lon, lat=lat)
@@ -74,6 +83,8 @@ def do_the_things(lat, lon, chagdays=2, offset=0):
     hebtomorrow = hebrew.from_gregorian(tomorrow.year, tomorrow.month, tomorrow.day)
     hebmonthtoday = hebrew_monthname(hebtoday)
     hebmonthtomorrow = hebrew_monthname(hebtomorrow)
+    omertoday = omer_day(hebtoday)
+    omertonight = omer_day(hebtomorrow)
 
 
     # Set up ephem info to determine sunset and nightfall
@@ -145,12 +156,18 @@ def do_the_things(lat, lon, chagdays=2, offset=0):
     if (sunnow == "notyetup" or sunnow == "up"):
         shabbat_or_holiday_now = shabbat_or_holiday_today
         hebrew_date_now = "{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0])
+        omernow = omertoday
     elif (sunnow == "down"):
         shabbat_or_holiday_now = shabbat_or_holiday_tonight
         hebrew_date_now = "{} {}, {}".format(hebtomorrow[2], hebmonthtomorrow, hebtomorrow[0])
+        omernow = omertonight
     elif (sunnow == "twilight"):
         shabbat_or_holiday_now = (shabbat_or_holiday_today or shabbat_or_holiday_tonight)
         hebrew_date_now = "indeterminate"
+        if omertoday > 0 and omertonight > 0:
+            omernow = omertoday + 0.5
+        else:
+            omernow = 0
     else:
         raise ValueError("How is the sun not up or down or twilight?")
 
@@ -169,6 +186,12 @@ def do_the_things(lat, lon, chagdays=2, offset=0):
         "shabbat_or_yom_tov_tonight": shabbat_or_holiday_tonight,
         "shabbat_or_yom_tov_now": shabbat_or_holiday_now,
     }
+    if omertoday > 0:
+        to_return["results"]["omer_today"] = omertoday
+    if omertonight > 0:
+        to_return["results"]["omer_tonight"] = omertonight
+    if omernow > 0:
+        to_return["results"]["omer_now"] = omernow
 
     return json.dumps(to_return)
 
