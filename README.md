@@ -30,6 +30,9 @@ All times are in ISO8601 format, with a time zone included that has been predict
 | shabbat_or_yom_tov_today | whether it is either shabbat or yom tov today before sunset | `true` or `false` | |
 | shabbat_or_yom_tov_tonight | whether it is either shabbat or yom tov tonight after nightfall | `true` or `false` | |
 | shabbat_or_yom_tov_now | whether it is either shabbat or yom tov right now | `true` or `false` | `true` during twilight at either start or end of shabbat / yom tov |
+| hanukkah_today | the Hanukkah day count for today before sunset | integer 1-8 or missing | missing if not during Hanukkah |
+| hanukkah_tonight | the Hanukkah day count for tonight after nightfall | integer 1-8 or missing | missing if not during Hanukkah |
+| hanukkah_now | the Hanukkah day count for right now | number 1-8 or missing | missing if not during Hanukkah; a "half" number such as 6.5 if between sunset and nightfall in the middle of Hanukkah |
 | omer_today | the omer count for today before sunset | integer 1-49 or missing | missing if not during the omer |
 | omer_tonight | the omer count for tonight after nightfall | integer 1-49 or missing | missing if not during the omer |
 | omer_now | the omer count for right now | number 1-49 or missing | missing if not during the omer; a "half" number such as 20.5 if between sunset and nightfall in the middle of the omer |
