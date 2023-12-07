@@ -1,9 +1,5 @@
 convertdate>=2.4.0
 DateTime>=4.4
 ephem>=4.1
-llvmlite>=0.38.0
-numpy>=1.22.0
-PyMeeus>=0.5.11
 pytz>=2022.1
 timezonefinder>=5.2.0
-zope.interface>=5.4.0
