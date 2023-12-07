@@ -8,6 +8,8 @@ import ephem
 import json
 import argparse
 
+tf = TimezoneFinder()
+
 def jewish_holiday(date, chagdays=1):
     if (chagdays != 1 and chagdays != 2):
         raise ValueError("chagdays must be 1 or 2")
@@ -74,7 +76,6 @@ def omer_day(thedate):
     return 0
 
 def do_the_things(lat, lon, chagdays=2, offset=0):
-    tf = TimezoneFinder()
     tzname = tf.timezone_at(lng=lon, lat=lat)
     try:
         tz = pytz.timezone(tzname)
