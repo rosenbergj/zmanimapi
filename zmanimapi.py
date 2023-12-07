@@ -54,6 +54,16 @@ def hebrew_monthname(thedate):
     months = {True: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar1", "Adar2"), False: ("", "Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Heshvan", "Kislev", "Tevet", "Shevat", "Adar")}
     return months[hebrew.leap(thedate[0])][thedate[1]]
 
+def hanukkah_day(date):
+    if (date[1] == 9 and date[2] > 24):
+        return date[2] - 24
+    if (date[1] == 10 and date[2] < 4 and (hebrew.year_days(date[0]) % 10 == 3)):
+        # This year, the 3rd of Tevet is still Hanukkah
+        return date[2] + 5
+    if (date[1] == 10 and date[2] < 3 and (hebrew.year_days(date[0]) % 10 != 3)):
+        return date[2] + 6
+    return 0
+
 def omer_day(thedate):
     if hebrew_monthname(thedate) == "Nisan":
         return max(thedate[2]-15, 0)
@@ -85,7 +95,8 @@ def do_the_things(lat, lon, chagdays=2, offset=0):
     hebmonthtomorrow = hebrew_monthname(hebtomorrow)
     omertoday = omer_day(hebtoday)
     omertonight = omer_day(hebtomorrow)
-
+    hanukkahtoday = hanukkah_day(hebtoday)
+    hanukkahtonight = hanukkah_day(hebtomorrow)
 
     # Set up ephem info to determine sunset and nightfall
     herenow = ephem.Observer()
@@ -157,10 +168,12 @@ def do_the_things(lat, lon, chagdays=2, offset=0):
         shabbat_or_holiday_now = shabbat_or_holiday_today
         hebrew_date_now = "{} {}, {}".format(hebtoday[2], hebmonthtoday, hebtoday[0])
         omernow = omertoday
+        hanukkahnow = hanukkahtoday
     elif (sunnow == "down"):
         shabbat_or_holiday_now = shabbat_or_holiday_tonight
         hebrew_date_now = "{} {}, {}".format(hebtomorrow[2], hebmonthtomorrow, hebtomorrow[0])
         omernow = omertonight
+        hanukkahnow = hanukkahtonight
     elif (sunnow == "twilight"):
         shabbat_or_holiday_now = (shabbat_or_holiday_today or shabbat_or_holiday_tonight)
         hebrew_date_now = "indeterminate"
@@ -168,6 +181,10 @@ def do_the_things(lat, lon, chagdays=2, offset=0):
             omernow = omertoday + 0.5
         else:
             omernow = 0
+        if hanukkahtoday > 0 and hanukkahtonight > 0:
+            hanukkahnow = hanukkahtoday + 0.5
+        else:
+            hanukkahnow = 0
     else:
         raise ValueError("How is the sun not up or down or twilight?")
 
@@ -192,6 +209,12 @@ def do_the_things(lat, lon, chagdays=2, offset=0):
         to_return["results"]["omer_tonight"] = omertonight
     if omernow > 0:
         to_return["results"]["omer_now"] = omernow
+    if hanukkahtoday > 0:
+        to_return["results"]["hanukkah_today"] = hanukkahtoday
+    if hanukkahtonight > 0:
+        to_return["results"]["hanukkah_tonight"] = hanukkahtonight
+    if hanukkahnow > 0:
+        to_return["results"]["hanukkah_now"] = hanukkahnow
 
     return json.dumps(to_return)
 
