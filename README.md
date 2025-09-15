@@ -86,4 +86,4 @@ The API might have slightly incorrect ideas of what constitutes "today" when you
 
 ## Execution Notes
 
-Tested in python 3.9.
+Tested in python 3.13.
