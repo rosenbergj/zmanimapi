@@ -10,7 +10,7 @@ The API currently lives at [https://api.zmanapi.com/](https://api.zmanapi.com/).
 | `lon` | yes | longitude in degrees<br/> (Positive = East, Negative = West) |
 | `chagdays` | yes | How many days of yom tov for Sukkot/Pesach/Shavuot<br/>(Must be 1 or 2) |
 | `offset` | no | How many minutes before (negative) or after (positive) right now we should pretend to be |
-| `datetime` (or `at`) | no | Timestamp at which we should pretend to be, either in a specified timezone, or target location's timezone if unspecified (note: mutually exclusive with `offset`) |
+| `datetime` (or `at`) | no | ISO8601 timestamp at which we should pretend to be, either in a specified timezone, or target location's timezone if unspecified (note: mutually exclusive with `offset`) |
 
 ## Response
 
@@ -23,7 +23,7 @@ All times are in ISO8601 format, with a time zone included that has been predict
 | now | time now | ISO8601 datetime | |
 | sunrise | time of today's sunrise | ISO8601 datetime, `"upallday"`, or `"downallday"` | may be in past or future |
 | sunset | time of today's sunset | ISO8601 datetime, `"upallday"`, or `"downallday"` | may be in past or future |
-| jewish_twilight_end | time of today's nightfall, when sun is 8.5 degrees below the horizon in the evening | ISO8601 datetime or `"none"` | may be in past or future |
+| jewish_twilight_end | time of today's nightfall, when sun is 8.5 degrees below the horizon in the evening | ISO8601 datetime, `"none"`, or `"alwaysdark"` | may be in past or future |
 | sun_now | current position of sun | `"notyetup"`, `"up"`, `"twilight"`, or `"down"` | `"twilight"` always indicates post-sunset, never pre-sunrise. Also, see "Polar Notes" below. |
 | hebrew_date_today | the date on the Hebrew calendar of today before sunset | `"DD Monthname, YYYY"` | Months are all 1 word; Adar is rendered as "Adar" or "Adar1" or "Adar2" |
 | hebrew_date_tonight | the date on the Hebrew calendar of tonight after nightfall | `"DD Monthname, YYYY"` | Months are all 1 word; Adar is rendered as "Adar" or "Adar1" or "Adar2" |
