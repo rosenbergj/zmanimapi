@@ -148,7 +148,7 @@ def do_the_things(lat, lon, chagdays=2, offset=None, at_datetime=None):
     # Status of sun, handle no-rise/no-set cases first
     if todayrise_txt == "upallday":
         sunnow = "up"
-    elif (todayrise_txt == 'downallday' and (tonightdark == 'alwaysdark' or tonightdark < now)):
+    elif (todayrise_txt == 'downallday' and (tonightdark_txt == 'alwaysdark' or tonightdark < now)):
         sunnow = "down"
     elif todayrise_txt == 'downallday':
         sunnow = "twilight"
