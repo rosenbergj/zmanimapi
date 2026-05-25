@@ -1,7 +1,7 @@
 #!/usr/bin/env -S python3 -u
 
 import datetime
-import pytz
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from timezonefinder import TimezoneFinder
 from convertdate import hebrew
 import ephem
@@ -78,20 +78,20 @@ def omer_day(thedate):
 def do_the_things(lat, lon, chagdays=2, offset=None, at_datetime=None):
     tzname = tf.timezone_at(lng=lon, lat=lat)
     try:
-        tz = pytz.timezone(tzname)
-    except pytz.exceptions.UnknownTimeZoneError:
-        tz = pytz.timezone('UTC')
+        tz = ZoneInfo(tzname)
+    except ZoneInfoNotFoundError:
+        tz = ZoneInfo('UTC')
 
     if at_datetime is not None:
         if at_datetime.tzinfo is not None:
             now = at_datetime.astimezone(tz)
         else:
-            now = tz.localize(at_datetime)
+            now = at_datetime.replace(tzinfo=tz)
     else:
         now = datetime.datetime.now(tz=tz)
         if offset is not None:
             now += datetime.timedelta(minutes=offset)
-    noon = tz.localize(datetime.datetime(year=now.year, month=now.month, day=now.day, hour=12, minute=30))
+    noon = datetime.datetime(year=now.year, month=now.month, day=now.day, hour=12, minute=30, tzinfo=tz)
     today = now.date()
     tomorrow = today + datetime.timedelta(days=1)
 
@@ -108,19 +108,19 @@ def do_the_things(lat, lon, chagdays=2, offset=None, at_datetime=None):
     # Set up ephem info to determine sunset and nightfall
     herenow = ephem.Observer()
     herenow.lat, herenow.lon = lat*ephem.pi/180, lon*ephem.pi/180
-    herenow.date = ephem.Date(now.astimezone(pytz.utc))
+    herenow.date = ephem.Date(now.astimezone(datetime.timezone.utc))
     herenoon = ephem.Observer()
     herenoon.lat, herenoon.lon = lat*ephem.pi/180, lon*ephem.pi/180
-    herenoon.date = ephem.Date(noon.astimezone(pytz.utc))
+    herenoon.date = ephem.Date(noon.astimezone(datetime.timezone.utc))
     sun = ephem.Sun()
 
     # Determine "set" and "dark" for today (may be in the past)
     try:
         todayrise_eph = herenoon.previous_rising(sun)
-        todayrise = pytz.utc.localize(todayrise_eph.datetime()).astimezone(tz)
+        todayrise = todayrise_eph.datetime().replace(tzinfo=datetime.timezone.utc).astimezone(tz)
         todayrise_txt = todayrise.isoformat(timespec='seconds')
         tonightset_eph = herenoon.next_setting(sun)
-        tonightset = pytz.utc.localize(tonightset_eph.datetime()).astimezone(tz)
+        tonightset = tonightset_eph.datetime().replace(tzinfo=datetime.timezone.utc).astimezone(tz)
         tonightset_txt = tonightset.isoformat(timespec='seconds')
     except ephem.NeverUpError:
         todayrise_txt = 'downallday'
@@ -136,7 +136,7 @@ def do_the_things(lat, lon, chagdays=2, offset=None, at_datetime=None):
     herenoon.horizon = "-8.233" # middle of sun 8.5 deg
     try:
         tonightdark_eph = herenoon.next_setting(sun)
-        tonightdark = pytz.utc.localize(tonightdark_eph.datetime()).astimezone(tz)
+        tonightdark = tonightdark_eph.datetime().replace(tzinfo=datetime.timezone.utc).astimezone(tz)
         tonightdark_txt = tonightdark.isoformat(timespec='seconds')
     except ephem.NeverUpError:
         tonightdark_txt = 'alwaysdark'

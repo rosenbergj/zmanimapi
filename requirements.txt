@@ -7,7 +7,6 @@ h3==4.3.1
 numpy==2.3.3
 pycparser==2.23
 PyMeeus==0.5.12
-pytz==2025.2
 setuptools==80.9.0
 timezonefinder==8.0.0
 zope.interface==8.0
