@@ -244,7 +244,7 @@ def lambda_handler(event, context):
         }
     datetime_str = dt_param or at_param
     if datetime_str:
-        at_datetime = datetime.datetime.fromisoformat(datetime_str)
+        at_datetime = datetime.datetime.fromisoformat(datetime_str.replace(' ', '+'))
     if offset is not None and at_datetime is not None:
         return {
             'statusCode': 400,
