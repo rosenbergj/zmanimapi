@@ -75,16 +75,22 @@ def omer_day(thedate):
         return thedate[2] + 44
     return 0
 
-def do_the_things(lat, lon, chagdays=2, offset=0):
+def do_the_things(lat, lon, chagdays=2, offset=None, at_datetime=None):
     tzname = tf.timezone_at(lng=lon, lat=lat)
     try:
         tz = pytz.timezone(tzname)
     except pytz.exceptions.UnknownTimeZoneError:
         tz = pytz.timezone('UTC')
 
-    now = datetime.datetime.now(tz=tz)
-    if offset is not None:
-        now += datetime.timedelta(minutes=offset)
+    if at_datetime is not None:
+        if at_datetime.tzinfo is not None:
+            now = at_datetime.astimezone(tz)
+        else:
+            now = tz.localize(at_datetime)
+    else:
+        now = datetime.datetime.now(tz=tz)
+        if offset is not None:
+            now += datetime.timedelta(minutes=offset)
     noon = tz.localize(datetime.datetime(year=now.year, month=now.month, day=now.day, hour=12, minute=30))
     today = now.date()
     tomorrow = today + datetime.timedelta(days=1)
@@ -228,7 +234,23 @@ def lambda_handler(event, context):
     offset = None
     if "offset" in query:
         offset = int(query['offset'])
-    output = do_the_things(lat=float(query['lat']), lon=float(query['lon']), chagdays=chagdays, offset=offset)
+    at_datetime = None
+    dt_param = query.get('datetime')
+    at_param = query.get('at')
+    if dt_param and at_param and dt_param != at_param:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({"error": "datetime and at parameters conflict"})
+        }
+    datetime_str = dt_param or at_param
+    if datetime_str:
+        at_datetime = datetime.datetime.fromisoformat(datetime_str)
+    if offset is not None and at_datetime is not None:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({"error": "offset and datetime parameters are mutually exclusive"})
+        }
+    output = do_the_things(lat=float(query['lat']), lon=float(query['lon']), chagdays=chagdays, offset=offset, at_datetime=at_datetime)
     return {
         'statusCode': 200,
         'body': output
@@ -239,7 +261,9 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--lat", help="latitude", type=float)
     parser.add_argument("-n", "--lon", help="longitude", type=float)
     parser.add_argument("-c", "--chagdays", help="how many days of chag", type=int, choices=[1, 2], default=2)
-    parser.add_argument("-o", "--offset", help="calculate this many minutes from now", type=int)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-o", "--offset", help="calculate this many minutes from now", type=int)
+    group.add_argument("-d", "--datetime", help="calculate for this ISO 8601 datetime", type=datetime.datetime.fromisoformat, dest="at_datetime")
     args = parser.parse_args()
 
-    print(do_the_things(lat=args.lat, lon=args.lon, chagdays=args.chagdays, offset=args.offset))
+    print(do_the_things(lat=args.lat, lon=args.lon, chagdays=args.chagdays, offset=args.offset, at_datetime=args.at_datetime))
