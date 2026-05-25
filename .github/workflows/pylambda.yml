@@ -3,20 +3,29 @@ on:
   push:
     branches:
       - main
+
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@main
-    - name: Deploy code to Lambda
-      uses: rosenbergj/py-lambda-action@s3-option
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v6
       with:
-        lambda_layer_arn: ${{ secrets.LAMBDA_DEPENDENCY_LAYER_ARN }}
-        lambda_function_name: 'ZmanimAPI'
-        use_s3: 'true'
-        s3_bucket_name: ${{ secrets.S3_BUCKET_NAME }}
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: 'us-east-1'
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: us-east-1
+
+    - name: Zip Lambda function
+      run: zip lambda.zip zmanimapi.py
+
+    - name: Upload to S3
+      run: aws s3 cp lambda.zip s3://${{ secrets.S3_BUCKET_NAME }}/lambda.zip
+
+    - name: Update Lambda function code
+      run: aws lambda update-function-code --function-name ZmanimAPI --s3-bucket ${{ secrets.S3_BUCKET_NAME }} --s3-key lambda.zip
