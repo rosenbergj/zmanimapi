@@ -25,7 +25,7 @@ jobs:
       run: zip lambda.zip zmanimapi.py
 
     - name: Upload to S3
-      run: aws s3 cp lambda.zip s3://${{ secrets.S3_BUCKET_NAME }}/lambda.zip
+      run: aws s3 cp lambda.zip s3://${{ vars.S3_BUCKET_NAME }}/lambda.zip
 
     - name: Update Lambda function code
-      run: aws lambda update-function-code --function-name ZmanimAPI --s3-bucket ${{ secrets.S3_BUCKET_NAME }} --s3-key lambda.zip
+      run: aws lambda update-function-code --function-name ZmanimAPI --s3-bucket ${{ vars.S3_BUCKET_NAME }} --s3-key lambda.zip
