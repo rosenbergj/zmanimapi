@@ -6,10 +6,11 @@ The API currently lives at [https://api.zmanapi.com/](https://api.zmanapi.com/).
 
 | Parameter | Required | Value |
 |-------|-------|-------|
-| lat | yes | latitude in degrees<br/>(Positive = North, Negative = South) |
-| lon | yes | longitude in degrees<br/> (Positive = East, Negative = West) |
-| chagdays | yes | How many days of yom tov for Sukkot/Pesach/Shavuot<br/>(Must be 1 or 2) |
-| offset | no | How many minutes before (negative) or after (positive) right now we should pretend to be |
+| `lat` | yes | latitude in degrees<br/>(Positive = North, Negative = South) |
+| `lon` | yes | longitude in degrees<br/> (Positive = East, Negative = West) |
+| `chagdays` | yes | How many days of yom tov for Sukkot/Pesach/Shavuot<br/>(Must be 1 or 2) |
+| `offset` | no | How many minutes before (negative) or after (positive) right now we should pretend to be |
+| `datetime` (or `at`) | no | Timestamp at which we should pretend to be, either in a specified timezone, or target location's timezone if unspecified (note: mutually exclusive with `offset`) |
 
 ## Response
 
