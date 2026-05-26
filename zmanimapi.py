@@ -106,9 +106,9 @@ def do_the_things(lat, lon, chagdays=2, offset=None, at_datetime=None):
     hanukkahtonight = hanukkah_day(hebtomorrow)
 
     # Set up ephem info to determine sunset and nightfall
-    herenow = ephem.Observer()
-    herenow.lat, herenow.lon = lat*ephem.pi/180, lon*ephem.pi/180
-    herenow.date = ephem.Date(now.astimezone(datetime.timezone.utc))
+    # herenow = ephem.Observer()
+    # herenow.lat, herenow.lon = lat*ephem.pi/180, lon*ephem.pi/180
+    # herenow.date = ephem.Date(now.astimezone(datetime.timezone.utc))
     herenoon = ephem.Observer()
     herenoon.lat, herenoon.lon = lat*ephem.pi/180, lon*ephem.pi/180
     herenoon.date = ephem.Date(noon.astimezone(datetime.timezone.utc))
