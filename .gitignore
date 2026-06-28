@@ -1,3 +1,7 @@
+# Python cache
+__pycache__/
+*.pyc
+
 # Distribution / packaging
 .Python
 build/
@@ -13,6 +17,9 @@ var/
 
 # Local .terraform directories
 .terraform/
+
+# Provider version lock file
+.terraform.lock.hcl
 
 # .tfstate files
 *.tfstate
@@ -42,8 +49,11 @@ override.tf.json
 # Include override files you do wish to add to version control using negated pattern
 # !example_override.tf
 
-# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
+# Plan output files
+plan.tfplan
+
+# AWS CLI dumps used during Terraform setup
+terraform/aws-cli-dumps/
 
 # Ignore CLI configuration files
 .terraformrc
