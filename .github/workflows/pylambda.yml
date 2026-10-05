@@ -37,6 +37,7 @@ jobs:
     steps:
     - uses: actions/checkout@main
 
+    # setup-uv publishes only full version tags (no moving @v10), so bump by hand.
     - uses: astral-sh/setup-uv@v10.2.0
 
     - name: Configure AWS credentials
