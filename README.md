@@ -90,10 +90,6 @@ Dependencies are managed with [uv](https://docs.astral.sh/uv/). `pyproject.toml`
 
 ## Building the dependency layer
 
-The deploy workflow only uploads `zmanimapi.py`; third-party packages come from the `Zmanim-API-dependencies` Lambda layer, referenced by version in `terraform/infra.tf`. Rebuild it whenever `uv.lock` changes:
+Third-party packages come from the `Zmanim-API-dependencies` Lambda layer, not the function zip. The deploy workflow rebuilds and publishes the layer automatically on any push to `main` that changes `uv.lock`, `pyproject.toml`, or `build-layer.sh`, then points the function at the new version before deploying the code. Running the workflow manually (Actions → deploy-py-lambda → Run workflow) always rebuilds and publishes the layer. Terraform ignores the function's `layers` after creation (the version in `terraform/infra.tf` is only the initial one), so `terraform apply` won't roll it back.
 
-1. `./build-layer.sh` produces `build/layer.zip`.
-2. Publish it: `aws lambda publish-layer-version --layer-name Zmanim-API-dependencies --zip-file fileb://build/layer.zip --compatible-runtimes python3.13`
-3. Bump the layer version number in `terraform/infra.tf` to the one just published, and apply.
-
-As of October 2026 the zip is about 49MB, just under Lambda's 50MB limit for direct upload. If publishing fails on size, upload the zip to S3 first and pass `--content S3Bucket=...,S3Key=...` instead of `--zip-file`.
+To build the layer locally for inspection, run `./build-layer.sh`, which produces `build/layer.zip`. As of October 2026 the zip is about 49MB, just under Lambda's 50MB direct-upload limit; the workflow publishes via S3, so that limit doesn't apply there.

@@ -3,13 +3,76 @@ on:
   push:
     branches:
       - main
+  # Manual runs always rebuild and publish the layer.
+  workflow_dispatch:
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      deps: ${{ steps.filter.outputs.deps }}
+    steps:
+    - uses: actions/checkout@main
+
+    - uses: dorny/paths-filter@v4
+      id: filter
+      with:
+        filters: |
+          deps:
+            - uv.lock
+            - pyproject.toml
+            - build-layer.sh
+
+  # Publishes a new dependency layer and points the function at it. Runs before
+  # the code deploy because AWS rejects concurrent updates to one function.
+  layer:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.deps == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@main
+
+    - uses: astral-sh/setup-uv@v10.2.0
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v6
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: us-east-1
+
+    - name: Build layer zip
+      run: ./build-layer.sh
+
+    - name: Upload to S3
+      run: aws s3 cp build/layer.zip s3://${{ vars.S3_BUCKET_NAME }}/layer.zip
+
+    - name: Publish layer version
+      id: publish
+      run: |
+        arn=$(aws lambda publish-layer-version \
+          --layer-name Zmanim-API-dependencies \
+          --content S3Bucket=${{ vars.S3_BUCKET_NAME }},S3Key=layer.zip \
+          --compatible-runtimes python3.13 \
+          --compatible-architectures x86_64 \
+          --query LayerVersionArn --output text)
+        echo "Published $arn"
+        echo "arn=$arn" >> "$GITHUB_OUTPUT"
+
+    - name: Point Lambda function at new layer
+      run: |
+        aws lambda update-function-configuration --function-name ZmanimAPI \
+          --layers ${{ steps.publish.outputs.arn }} > /dev/null
+        aws lambda wait function-updated --function-name ZmanimAPI
+
   build:
+    needs: [changes, layer]
+    # Run whether or not the layer job ran, but not if it failed.
+    if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
 
     steps:

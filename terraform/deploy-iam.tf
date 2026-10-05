@@ -52,14 +52,29 @@ resource "aws_iam_role_policy" "deploy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = "lambda:UpdateFunctionCode"
+        Effect = "Allow"
+        Action = [
+          "lambda:UpdateFunctionCode",
+          "lambda:UpdateFunctionConfiguration",
+          "lambda:GetFunctionConfiguration",
+        ]
         Resource = "arn:aws:lambda:us-east-1:${data.aws_caller_identity.current.account_id}:function:${var.lambda_function_name}"
       },
       {
-        Effect   = "Allow"
-        Action   = ["s3:PutObject", "s3:GetObject"]
-        Resource = "arn:aws:s3:::${var.s3_bucket_name}/lambda.zip"
+        Effect = "Allow"
+        Action = ["lambda:PublishLayerVersion", "lambda:GetLayerVersion"]
+        Resource = [
+          "arn:aws:lambda:us-east-1:${data.aws_caller_identity.current.account_id}:layer:Zmanim-API-dependencies",
+          "arn:aws:lambda:us-east-1:${data.aws_caller_identity.current.account_id}:layer:Zmanim-API-dependencies:*",
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = ["s3:PutObject", "s3:GetObject"]
+        Resource = [
+          "arn:aws:s3:::${var.s3_bucket_name}/lambda.zip",
+          "arn:aws:s3:::${var.s3_bucket_name}/layer.zip",
+        ]
       }
     ]
   })

@@ -37,7 +37,8 @@ resource "aws_lambda_function" "api" {
   reserved_concurrent_executions = 5
 
   lifecycle {
-    ignore_changes = [s3_bucket, s3_key]
+    # Code and dependency layer are deployed by GitHub Actions, not Terraform.
+    ignore_changes = [s3_bucket, s3_key, layers]
   }
 }
 
