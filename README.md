@@ -83,3 +83,17 @@ Note: A day's sunset is defined as the next sunset after noon that day, assuming
 ## Execution Notes
 
 Tested in python 3.13.
+
+## Development
+
+Dependencies are managed with [uv](https://docs.astral.sh/uv/). `pyproject.toml` pins Python to 3.13 to match the Lambda runtime, and `uv.lock` records exact versions. Run locally with `uv run zmanimapi.py ...`; change dependencies with `uv add` / `uv remove` / `uv lock --upgrade-package <name>`.
+
+## Building the dependency layer
+
+The deploy workflow only uploads `zmanimapi.py`; third-party packages come from the `Zmanim-API-dependencies` Lambda layer, referenced by version in `terraform/infra.tf`. Rebuild it whenever `uv.lock` changes:
+
+1. `./build-layer.sh` produces `build/layer.zip`.
+2. Publish it: `aws lambda publish-layer-version --layer-name Zmanim-API-dependencies --zip-file fileb://build/layer.zip --compatible-runtimes python3.13`
+3. Bump the layer version number in `terraform/infra.tf` to the one just published, and apply.
+
+As of October 2026 the zip is about 49MB, just under Lambda's 50MB limit for direct upload. If publishing fails on size, upload the zip to S3 first and pass `--content S3Bucket=...,S3Key=...` instead of `--zip-file`.
