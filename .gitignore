@@ -8,6 +8,7 @@ build/
 dist/
 downloads/
 env/
+.venv/
 lib/
 lib64/
 parts/

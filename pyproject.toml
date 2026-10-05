@@ -1,0 +1,9 @@
+[project]
+name = "shabbatornot"
+version = "0"
+requires-python = "==3.13.*"
+dependencies = [
+    "convertdate>=2.4.0",
+    "ephem>=4.1",
+    "timezonefinder>=5.2.0",
+]
